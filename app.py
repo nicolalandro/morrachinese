@@ -2,6 +2,8 @@ import streamlit as st
 import streamlit.components.v1 as components
 import asyncio
 from datetime import datetime
+import random
+import string
 
 MAX_ACTIVE_USERS = 1000
 
@@ -19,13 +21,13 @@ def create_user_status(game_id, user_number, name):
         'name': name
     }
 
-async def watch(game_area, game_id, user):
+async def watch(game_area, game_id, user_id):
     while True:
-        if st.static_state['users'][name]['game_id'] is None:
+        if st.static_state['users'][user_id]['game_id'] is None:
             st.write('The match end! You win?')
             st.button('Press to restart')
             break
-        st.static_state['users'][name]['updated_at'] = datetime.now()
+        st.static_state['users'][user_id]['updated_at'] = datetime.now()
         game_status = []
 
         for i, round in enumerate(st.static_state['games'][game_id]['rounds'][:-1]):
@@ -37,6 +39,11 @@ async def watch(game_area, game_id, user):
         game_area.markdown('\n\n'.join(game_status))
         r = await asyncio.sleep(1)
 
+def randomword(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
+
+
 if __name__ == '__main__':
     st.title('Sasso Carta Forbici')
     # clear unused user
@@ -45,8 +52,11 @@ if __name__ == '__main__':
     if len(st.static_state['users'].keys()) > MAX_ACTIVE_USERS:
         "The server is busy!"
     else:
+        if 'user_id' not in st.session_state:
+            st.session_state['user_id'] = randomword(10)
         name = st.text_input("UserName", "Rand")
-        user_id = name
+        user_id = st.session_state['user_id']
+        st.write('id:', user_id)
         show_messages = ''
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -55,7 +65,7 @@ if __name__ == '__main__':
                 st.static_state['games'][game_id] = create_game()
                 st.static_state['users'][user_id] = create_user_status(game_id, 0, name)
                 st.static_state['games'][game_id]['users'] = [user_id]
-                show_messages = "you are in game"
+                show_messages = f"you are in game with Game ID: {game_id}"
         with col2:
             input_game_id = st.text_input("Game ID", "")
         with col3:
