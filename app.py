@@ -58,8 +58,12 @@ if __name__ == '__main__':
         user_id = st.session_state['user_id']
         st.write('id:', user_id)
         show_messages = ''
+        
         col1, col2, col3 = st.columns(3)
         with col1:
+            # for button alignment
+            st.write('')
+            st.write('')
             if st.button('Create game'):
                 game_id = str(user_id)
                 st.static_state['games'][game_id] = create_game()
@@ -69,6 +73,9 @@ if __name__ == '__main__':
         with col2:
             input_game_id = st.text_input("Game ID", "")
         with col3:
+            # for button alignment
+            st.write('')
+            st.write('')
             if st.button('Join'):
                 if input_game_id in st.static_state['games'].keys():
                     game_id = input_game_id
